@@ -292,17 +292,14 @@ function DirectoryView() {
   async function handleCreateDirectory(e) {
     e.preventDefault();
     setErrorMessage("");
-  
     try {
       const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          dirname: newDirname,
         },
         credentials: "include",
-        body: JSON.stringify({ dirname: newDirname }),
       });
-  
       await handleFetchErrors(response);
       setNewDirname("New Folder");
       setShowCreateDirModal(false);
@@ -311,7 +308,7 @@ function DirectoryView() {
       setErrorMessage(error.message);
     }
   }
-  
+
   /**
    * Rename
    */

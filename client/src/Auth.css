@@ -93,3 +93,36 @@
   text-decoration: underline;
   color: #004a99; /* darker color on hover */
 }
+
+.otp-wrapper {
+  position: relative;
+}
+
+.otp-wrapper .input {
+  padding-right: 80px; /* adjust to fit your button width */
+}
+
+.otp-wrapper .otp-button {
+  position: absolute;
+  top: 50%;
+  right: 8px; /* how far from the right edge */
+  transform: translateY(-50%);
+  padding: 4px 8px; /* small footprint */
+  font-size: 0.75rem; /* make text smaller */
+  line-height: 1;
+  border: none;
+  border-radius: 3px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.otp-wrapper .otp-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-button:disabled {
+  background-color: #92a6bc;
+  cursor: not-allowed;
+}
