@@ -1,12 +1,13 @@
 import express from "express";
 import cors from "cors";
-import crypto from "crypto";
 import cookieParser from "cookie-parser";
 import directoryRoutes from "./routes/directoryRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import checkAuth from "./middlewares/authMiddleware.js";
+import otpRoutes from "./routes/otpRoutes.js"; 
 import './config/db.js';
+
 
 try {
   const app = express();
@@ -29,6 +30,7 @@ try {
   app.use("/directory", checkAuth, directoryRoutes);
   app.use("/file", checkAuth, fileRoutes);
   app.use("/user", userRoutes);
+  app.use("/auth", otpRoutes);
 
   app.use((err, req, res, next) => {
     console.log(err);

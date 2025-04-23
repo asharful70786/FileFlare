@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "mime-types": "^2.1.35",
-    "mongoose": "^8.13.2"
+    "mongoose": "^8.13.2",
+    "resend": "^4.4.0"
   },
   "devDependencies": {
     "prettier": "^3.4.2"
