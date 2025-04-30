@@ -1,20 +1,14 @@
-// import { client } from "../config/db.js";
+
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
 import crypto from "crypto";
-import { json } from "stream/consumers";
-import { signedCookie } from "cookie-parser";
-// import { Types } from "mongoose";
+
 
 export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
-  // let password_Salt = "FJ6b1+49KmmdeHSNHq+4";
-  let hased_Pass = crypto
-    .createHash("sha256")
-    .update("FJ6b1+49KmmdeHSNHq+4")
-    .digest("hex");
-  // const db = req.db;
+  const salt = crypto.randomBytes(16)
+  const hashedPassword = crypto.pbkdf2Sync(password, salt, 100000, 32, "sha512").toString("base64url");
   const foundUser = await User.findOne({ email });
   if (foundUser) {
     return res.status(409).json({
@@ -45,7 +39,7 @@ export const register = async (req, res, next) => {
         _id: userId,
         name,
         email,
-        password: hased_Pass,
+        password: `${salt.toString("base64url")}.${hashedPassword.toString("base64url")}`,
         rootDirId,
       },
       { session }
@@ -69,16 +63,17 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
-  let verify_Pass = crypto
-    .createHash("sha256")
-    .update("FJ6b1+49KmmdeHSNHq+4")
-    .digest("hex");
-
-  const user = await User.findOne({ email, password: verify_Pass });
-
+  const user = await User.findOne({ email });
   if (!user) {
-    return res.status(404).json({ error: "Invalid Credentials" });
+    return res.status(404).json({ error: "Invalid Credentials , User not found" });
   }
+  const [salt, savedPassword] = user.password.split(".");
+
+  const enterPassword = crypto.pbkdf2Sync(password, Buffer.from(salt, "base64url"), 100000, 32, "sha512").toString("base64url");
+  if (savedPassword !== enterPassword) {
+    return res.status(401).json({ error: "Invalid Credentials  , password does not match" });
+  }
+
   const cookiesPayload = JSON.stringify({
     _id: user._id.toString(),
     expiry: Math.round(Date.now() / 1000 + 100000),
@@ -87,7 +82,7 @@ export const login = async (req, res, next) => {
   res.cookie("token", cookiesPayload, {
     httpOnly: true,
     signed: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7, 
   });
   res.status(200).json({ message: "Logged In" });
 };
