@@ -1,7 +1,12 @@
-import { connectDB, client } from "./db.js";
+import mongoose from "mongoose";
+import { connectDB } from "./db.js";
+
+await connectDB();
+const db =  mongoose.connection.db;
+ let client = mongoose.connection.getClient();
 
 try {
-  const db = await connectDB();
+
 
   const command = "collMod";
 
@@ -88,7 +93,7 @@ try {
             bsonType: "objectId",
           },
           parentDirId: {
-            bsonType: ["objectId", "null"],
+            bsonType: "objectId",
           },
         },
         additionalProperties: false,

@@ -6,10 +6,11 @@ import fileRoutes from "./routes/fileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import checkAuth from "./middlewares/authMiddleware.js";
 import otpRoutes from "./routes/otpRoutes.js"; 
-import './config/db.js';
+import  {connectDB} from "./config/db.js";
 
 
 try {
+    await  connectDB();
   const app = express();
   app.use(cookieParser("this is a salt"));
 
