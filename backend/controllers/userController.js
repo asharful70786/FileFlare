@@ -2,13 +2,12 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
-import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 
 export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
-  const salt = crypto.randomBytes(16)
-  const hashedPassword = crypto.pbkdf2Sync(password, salt, 100000, 32, "sha512").toString("base64url");
+  let hased_Password = await bcrypt.hash(password, 10);
   const foundUser = await User.findOne({ email });
   if (foundUser) {
     return res.status(409).json({
@@ -39,7 +38,7 @@ export const register = async (req, res, next) => {
         _id: userId,
         name,
         email,
-        password: `${salt.toString("base64url")}.${hashedPassword.toString("base64url")}`,
+        password: hased_Password,
         rootDirId,
       },
       { session }
@@ -67,10 +66,10 @@ export const login = async (req, res, next) => {
   if (!user) {
     return res.status(404).json({ error: "Invalid Credentials , User not found" });
   }
-  const [salt, savedPassword] = user.password.split(".");
 
-  const enterPassword = crypto.pbkdf2Sync(password, Buffer.from(salt, "base64url"), 100000, 32, "sha512").toString("base64url");
-  if (savedPassword !== enterPassword) {
+  let enteredPassword = await bcrypt.compare(password, user.password);
+
+  if (!enteredPassword) {
     return res.status(401).json({ error: "Invalid Credentials  , password does not match" });
   }
 
@@ -82,7 +81,7 @@ export const login = async (req, res, next) => {
   res.cookie("token", cookiesPayload, {
     httpOnly: true,
     signed: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, 
+    maxAge: 1000 * 60 * 60 * 24 * 7,
   });
   res.status(200).json({ message: "Logged In" });
 };
