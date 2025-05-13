@@ -9,19 +9,11 @@ export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
   let hased_Password = await bcrypt.hash(password, 10);
   const foundUser = await User.findOne({ email });
-  if (foundUser) {
-    return res.status(409).json({
-      error: "User already exists",
-      message:
-        "A user with this email address already exists. Please try logging in or use a different email.",
-    });
-  }
   const session = await mongoose.startSession();
 
   try {
     const rootDirId = new Types.ObjectId();
     const userId = new Types.ObjectId();
-    console.log(rootDirId, userId);
     session.startTransaction();
     await Directory.insertOne(
       {
@@ -54,6 +46,10 @@ export const register = async (req, res, next) => {
       res
         .status(400)
         .json({ error: "Invalid input, please enter valid details" });
+    } else if (err.code === 11000) {
+      if (err.keyValue.email) {
+      return   res.status(409).json({ error: "A user with this email address already exists" });
+      }
     } else {
       next(err);
     }
