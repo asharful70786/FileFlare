@@ -1,128 +1,144 @@
-/* Container */
+/* Auth.css */
 .container {
   max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 60px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Heading */
 .heading {
+  font-size: 28px;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-/* Form */
 .form {
   display: flex;
   flex-direction: column;
 }
 
-/* Form Group */
 .form-group {
-  position: relative; /* Allows absolute positioning of the error message */
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  position: relative;
 }
 
-/* Labels */
 .label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
 }
 
-/* Inputs */
 .input {
   width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
 }
 
-/* Red border when there's an error */
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
 .input-error {
-  border: 1px solid red;
+  border-color: #dc3545;
 }
 
-/* Absolutely positioned error message */
 .error-msg {
+  color: #dc3545;
+  font-size: 13px;
   position: absolute;
-  top: 100%; /* just below the input */
+  bottom: -20px;
   left: 0;
-  color: red;
-  font-size: 0.7rem;
-  margin-top: 2px;
-  white-space: nowrap; /* so text doesn't wrap */
 }
 
-/* Submit Button */
 .submit-button {
-  background-color: #007bff; /* Button color */
+  padding: 12px;
+  background-color: #007bff;
   color: white;
+  font-weight: 500;
+  font-size: 15px;
   border: none;
-  border-radius: 4px; /* 4px border-radius */
-  padding: 10px 15px;
-  width: 100%;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
+  transition: background-color 0.2s;
 }
 
 .submit-button:hover {
-  opacity: 0.9;
+  background-color: #0056b3;
 }
 
-/* Success state for the Registration button (if needed in Register.js) */
-.submit-button.success {
-  background-color: green;
-}
-
-/* Link Text */
 .link-text {
+  margin-top: 16px;
   text-align: center;
-  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
 }
 
-/* Link Styling */
 .link-text a {
-  color: #0066cc; /* link color */
+  color: #007bff;
   text-decoration: none;
-  font-weight: 500;
 }
 
 .link-text a:hover {
   text-decoration: underline;
-  color: #004a99; /* darker color on hover */
 }
 
-.otp-wrapper {
+.divider {
+  text-align: center;
+  margin: 20px 0;
   position: relative;
 }
 
-.otp-wrapper .input {
-  padding-right: 80px; /* adjust to fit your button width */
+.divider span {
+  background: white;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #888;
 }
 
-.otp-wrapper .otp-button {
+.divider::before,
+.divider::after {
+  content: "";
   position: absolute;
   top: 50%;
-  right: 8px; /* how far from the right edge */
-  transform: translateY(-50%);
-  padding: 4px 8px; /* small footprint */
-  font-size: 0.75rem; /* make text smaller */
-  line-height: 1;
-  border: none;
-  border-radius: 3px;
-  background-color: #007bff;
-  color: #fff;
+  width: 40%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.google-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.otp-wrapper .otp-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.submit-button:disabled {
-  background-color: #92a6bc;
-  cursor: not-allowed;
+.google-btn:hover {
+  background-color: #f8f8f8;
 }

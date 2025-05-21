@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
+import LogWithGoogle from "./LogWithGoogle";
 
 const Login = () => {
   const BASE_URL = "http://localhost:4000";
@@ -108,6 +109,13 @@ const Login = () => {
       <p className="link-text">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
+      <div className="divider">
+           <span>or</span>
+      </div>
+      <div className="social-login">
+        <button className="social-button"><LogWithGoogle/></button>
+        {/* <button className="social-button">Facebook</button> */}
+      </div>
     </div>
   );
 };

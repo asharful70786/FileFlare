@@ -2,8 +2,13 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
+import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
+import { OAuth2Client } from "google-auth-library";
+dotenv.config();
+
+
 
 
 export const register = async (req, res, next) => {
@@ -97,6 +102,31 @@ export const logout = async (req, res) => {
   await Session.findByIdAndDelete(req.signedCookies.sid);
   res.status(204).end();
 };
+
+export const loginWithGoogle = async (req, res) => {
+  const clientId = process.env.Google_ClientId;
+  const clientSecret = process.env.Google_ClientSecret;
+  const redirectUri = "http://localhost:5173";
+
+
+  const client = new OAuth2Client(clientId, clientSecret, redirectUri);
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ error: "Token is required" });
+  }
+  //now i have to emplemnt the seeion and stractuire schema of the user in the morning
+
+
+
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: clientId,
+  });
+
+  const userInfo = ticket.getPayload();
+
+  res.json({ message: userInfo });
+}
 
 
 export const logoutAll = async (req, res) => {
