@@ -3,6 +3,7 @@ import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
 import bcrypt from "bcrypt";
+import Session from "../models/sessionModel.js";
 
 
 export const register = async (req, res, next) => {
@@ -48,7 +49,7 @@ export const register = async (req, res, next) => {
         .json({ error: "Invalid input, please enter valid details" });
     } else if (err.code === 11000) {
       if (err.keyValue.email) {
-      return   res.status(409).json({ error: "A user with this email address already exists" });
+        return res.status(409).json({ error: "A user with this email address already exists" });
       }
     } else {
       next(err);
@@ -66,15 +67,12 @@ export const login = async (req, res, next) => {
   let enteredPassword = await bcrypt.compare(password, user.password);
 
   if (!enteredPassword) {
-    return res.status(401).json({ error: "Invalid Credentials  , password does not match" });
+    return res.status(401).json({ error: "Invalid Credentials  , User not found" });
   }
 
-  const cookiesPayload = JSON.stringify({
-    _id: user._id.toString(),
-    expiry: Math.round(Date.now() / 1000 + 100000),
-  })
+  const session = await Session.create({ userId: user._id })
 
-  res.cookie("token", cookiesPayload, {
+  res.cookie("sid", session._id, {
     httpOnly: true,
     signed: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,

@@ -1,24 +1,28 @@
-import { ObjectId } from "mongodb";
 import User from "../models/userModel.js";
-import crypto from "crypto";
+import Session from "../models/sessionModel.js";
 
 export default async function checkAuth(req, res, next) {
-  const {token } = req.signedCookies
-  //in cookie perser we founf cookie on  req.signedCookies
-  if (!token) {
-    return res.status(401).json({ error: "Not logged in!" });
-  }
-
-   const {_id , expiry } = JSON.parse(token)
-
   try {
-    const user = await User.findOne({ _id }).lean();
-    if (!user) {
-      return res.status(401).json({ error: "Not logged!" });
+    const { sid } = req.signedCookies;
+    if (!sid) {
+      return res.status(401).json({ error: "Not logged in!" });
     }
+    const session = await Session.findById(sid);
+    if (!session) {
+      res.clearCookie("sid");
+      return res.status(401).json({ error: "Session expired or invalid!" });
+    }
+    const user = await User.findById(session.userId).select("-password");
+    if (!user) {
+      res.clearCookie("sid");
+      await Session.findByIdAndDelete(sid);
+      return res.status(401).json({ error: "User not found!" });
+    }
+
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ error: "Not logged in!" });
+    console.error("checkAuth error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
