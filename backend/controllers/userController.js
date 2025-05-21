@@ -70,7 +70,12 @@ export const login = async (req, res, next) => {
     return res.status(401).json({ error: "Invalid Credentials  , User not found" });
   }
 
-  const session = await Session.create({ userId: user._id })
+  const session = await Session.create({ userId: user._id });
+  const userSession = await Session.find({ userId: user._id });
+  if (userSession.length >= 3) {
+    await Session.findByIdAndDelete(userSession[0]._id);
+  } //logut user if he login more than 3 times
+
 
   res.cookie("sid", session._id, {
     httpOnly: true,
@@ -87,7 +92,19 @@ export const getCurrentUser = (req, res) => {
   });
 };
 
-export const logout = (req, res) => {
-  res.clearCookie("uid");
+export const logout = async (req, res) => {
+  res.clearCookie("sid");
+  await Session.findByIdAndDelete(req.signedCookies.sid);
   res.status(204).end();
+};
+
+
+export const logoutAll = async (req, res) => {
+  try {
+    await Session.deleteMany({ userId: req.user._id });
+    res.clearCookie("sid");
+    return res.status(204).end();
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 };
