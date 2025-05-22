@@ -8,7 +8,7 @@ function LogWithGoogle() {
       <GoogleLogin
         onSuccess={async (credentialResponse) => {
           try {
-            const response = await fetch(`${BASE_URL}/user/google-login`, {
+            const response = await fetch(`${BASE_URL}/auth/google-login`, {
               method: "POST",
               body: JSON.stringify({ token: credentialResponse.credential }),
               headers: {

@@ -1,5 +1,8 @@
 import Otp from "../models/otpModel.js";
 import { sendOtp } from "../services/otpService.js";
+import User from "../models/userModel.js";
+
+import { loginWithGoogle } from "../services/loginWithGoogle.js";
 
 const sendOtpRequest = async (req, res) => {
   const { email } = req.body;
@@ -32,5 +35,34 @@ const verifyOtpRequest = async (req, res) => {
     return res.status(500).json({ message: "Failed to verify OTP" });
   }
 };
+
+
+export const continueWithGoogle = async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ error: "Token is required" });
+  }
+
+  let userInfo = await loginWithGoogle(token);
+  const { name, email, picture } = userInfo;
+  const user = await User.findOne({ email });
+  if (!user) {
+    // const newUser = await User.create({
+    //   name,
+    //   email,
+    //   profile: picture
+    // }); 
+    // // i have also emplement here rootdir and handle with session
+    return res.json({ message: "created bal  " });
+  } else {
+    return res.status(400).json({ error: "User exists" });
+  }
+
+
+}
+
+
+
+
 
 export { sendOtpRequest, verifyOtpRequest };

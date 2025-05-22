@@ -5,7 +5,7 @@ import directoryRoutes from "./routes/directoryRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import checkAuth from "./middlewares/authMiddleware.js";
-import otpRoutes from "./routes/otpRoutes.js"; 
+import otpRoutes from "./routes/authRoutes.js"; 
 import  {connectDB} from "./config/db.js";
 
 

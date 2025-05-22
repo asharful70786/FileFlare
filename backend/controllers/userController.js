@@ -2,13 +2,8 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
-import { OAuth2Client } from "google-auth-library";
-dotenv.config();
-
-
 
 
 export const register = async (req, res, next) => {
@@ -103,38 +98,40 @@ export const logout = async (req, res) => {
   res.status(204).end();
 };
 
-export const loginWithGoogle = async (req, res) => {
-  const clientId = process.env.Google_ClientId;
-  const clientSecret = process.env.Google_ClientSecret;
-  const redirectUri = "http://localhost:5173";
+// export const continueWithGoogle = async (req, res) => {
+//   const { token } = req.body;
+//   if (!token) {
+//     return res.status(400).json({ error: "Token is required" });
+//   }
 
+//   let userInfo = await loginWithGoogle(token);
+//    const {name , email , picture } = userInfo;
+//    console.log(name , email , picture);
+//     const user = await User.findOne({email});
+//     if (!user) {
+//       return ;
+//     }else{
+//       const newUser =   await User.create({
+//         name,
+//         email,
+//         profile: picture
+//       });
+//       res.json({ newUser });
+//     }
 
-  const client = new OAuth2Client(clientId, clientSecret, redirectUri);
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).json({ error: "Token is required" });
-  }
-  //now i have to emplemnt the seeion and stractuire schema of the user in the morning
+  
+// }
 
-
-
-  const ticket = await client.verifyIdToken({
-    idToken: token,
-    audience: clientId,
-  });
-
-  const userInfo = ticket.getPayload();
-
-  res.json({ message: userInfo });
-}
 
 
 export const logoutAll = async (req, res) => {
   try {
     await Session.deleteMany({ userId: req.user._id });
     res.clearCookie("sid");
+    console.log("All sessions deleted");
     return res.status(204).end();
   } catch (error) {
+    console.error("Error in logoutAll:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
