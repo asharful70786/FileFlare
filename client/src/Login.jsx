@@ -1,120 +1,101 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // ✅ import useNavigate
 import "./Auth.css";
 import LogWithGoogle from "./LogWithGoogle";
 
 const Login = () => {
   const BASE_URL = "http://localhost:4000";
+  const navigate = useNavigate(); 
 
   const [formData, setFormData] = useState({
     email: "ashrafulmomin7076@gmail.com",
     password: "1234",
   });
 
-  // serverError will hold the error message from the server
   const [serverError, setServerError] = useState("");
-
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Clear the server error as soon as the user starts typing in either field
-    if (serverError) {
-      setServerError("");
-    }
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+    setServerError(""); // Clear error on input
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${BASE_URL}/user/login`, {
+      const res = await fetch(`${BASE_URL}/user/login`, {
         method: "POST",
-        body: JSON.stringify(formData),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
+        body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-      if (data.error) {
-        // If there's an error, set the serverError message
-        setServerError(data.error);
+      const data = await res.json();
+      console.log("Login response:", data);
+
+      if (data.message = "Logged In") {
+         navigate("/"); 
       } else {
-        // On success, navigate to home or any other protected route
-        navigate("/");
+       setServerError(data.error);
       }
-    } catch (error) {
-      console.error("Error:", error);
+    } catch (err) {
+      console.error(err);
       setServerError("Something went wrong. Please try again.");
     }
   };
-
-  // If there's an error, we'll add "input-error" class to both fields
-  const hasError = Boolean(serverError);
 
   return (
     <div className="container">
       <h2 className="heading">Login</h2>
       <form className="form" onSubmit={handleSubmit}>
-        {/* Email */}
+        {/* Email Field */}
         <div className="form-group">
-          <label htmlFor="email" className="label">
-            Email
-          </label>
+          <label htmlFor="email" className="label">Email</label>
           <input
-            className={`input ${hasError ? "input-error" : ""}`}
             type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="Enter your email"
+            className={`input ${serverError ? "input-error" : ""}`}
             required
           />
         </div>
 
-        {/* Password */}
+        {/* Password Field */}
         <div className="form-group">
-          <label htmlFor="password" className="label">
-            Password
-          </label>
+          <label htmlFor="password" className="label">Password</label>
           <input
-            className={`input ${hasError ? "input-error" : ""}`}
             type="password"
             id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="Enter your password"
+            className={`input ${serverError ? "input-error" : ""}`}
             required
           />
-          {/* Absolutely-positioned error message below password field */}
           {serverError && <span className="error-msg">{serverError}</span>}
         </div>
 
-        <button type="submit" className="submit-button">
-          Login
-        </button>
+        <button type="submit" className="submit-button">Login</button>
       </form>
 
-      {/* Link to the register page */}
+      {/* Register Link */}
       <p className="link-text">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
-      <div className="divider">
-           <span>or</span>
-      </div>
+
+      {/* Divider */}
+      <div className="divider"><span>or</span></div>
+
+      {/* Social Login */}
       <div className="social-login">
-        <button className="social-button"><LogWithGoogle/></button>
-        {/* <button className="social-button">Facebook</button> */}
+        <button className="social-button">
+          <LogWithGoogle />
+        </button>
       </div>
     </div>
   );

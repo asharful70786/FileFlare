@@ -1,7 +1,9 @@
 import { GoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 
 function LogWithGoogle() {
   const BASE_URL = "http://localhost:4000";
+   const navigate = useNavigate(); // add this
 
   return (
     <>
@@ -9,6 +11,7 @@ function LogWithGoogle() {
         onSuccess={async (credentialResponse) => {
           try {
             const response = await fetch(`${BASE_URL}/auth/google-login`, {
+              credentials: "include",
               method: "POST",
               body: JSON.stringify({ token: credentialResponse.credential }),
               headers: {
@@ -21,7 +24,8 @@ function LogWithGoogle() {
             } else {
               const data = await response.json();
               console.log("Login success:", data);
-              // Optional: Save token/cookie or redirect
+                
+              navigate("/");
             }
           } catch (error) {
             console.error("Error during Google login:", error);

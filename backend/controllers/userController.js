@@ -64,31 +64,35 @@ export const login = async (req, res, next) => {
     return res.status(404).json({ error: "Invalid Credentials , User not found" });
   }
 
-  let enteredPassword = await bcrypt.compare(password, user.password);
+  try {
+    let enteredPassword = await bcrypt.compare(password, user.password);
 
-  if (!enteredPassword) {
-    return res.status(401).json({ error: "Invalid Credentials  , User not found" });
+    if (!enteredPassword) {
+      return res.status(401).json({ error: "Invalid Credentials  , User not found" });
+    }
+
+    const session = await Session.create({ userId: user._id });
+    const userSession = await Session.find({ userId: user._id });
+    if (userSession.length >= 3) {
+      await Session.findByIdAndDelete(userSession[0]._id);
+    } //logout user if he login more than 3 times
+
+    res.cookie("sid", session._id, {
+      httpOnly: true,
+      signed: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+    return res.status(200).json({ message: "Logged In" });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error at login time" });
   }
-
-  const session = await Session.create({ userId: user._id });
-  const userSession = await Session.find({ userId: user._id });
-  if (userSession.length >= 3) {
-    await Session.findByIdAndDelete(userSession[0]._id);
-  } //logut user if he login more than 3 times
-
-
-  res.cookie("sid", session._id, {
-    httpOnly: true,
-    signed: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7,
-  });
-  res.status(200).json({ message: "Logged In" });
 };
 
 export const getCurrentUser = (req, res) => {
   res.status(200).json({
     name: req.user.name,
     email: req.user.email,
+    picture: req.user.picture
   });
 };
 
@@ -119,7 +123,7 @@ export const logout = async (req, res) => {
 //       res.json({ newUser });
 //     }
 
-  
+
 // }
 
 

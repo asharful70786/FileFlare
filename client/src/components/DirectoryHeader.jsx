@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import "../App.css";
 import {
   FaFolderPlus,
   FaUpload,
@@ -23,6 +24,7 @@ function DirectoryHeader({
   const [loggedIn, setLoggedIn] = useState(false);
   const [userName, setUserName] = useState("Guest User");
   const [userEmail, setUserEmail] = useState("guest@example.com");
+   const [userPicture, setUserPicture] = useState("");
 
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ function DirectoryHeader({
           // Set user info if logged in
           setUserName(data.name);
           setUserEmail(data.email);
+          setUserPicture(data.picture);
           setLoggedIn(true);
         } else if (response.status === 401) {
           // User not logged in
@@ -170,7 +173,16 @@ function DirectoryHeader({
             title="User Menu"
             onClick={handleUserIconClick}
           >
-            <FaUser />
+           
+{userPicture && (
+  <img
+    src={userPicture}
+    alt="User"
+    className="user-icon"
+  />
+)}
+
+
           </button>
 
           {showUserMenu && (
