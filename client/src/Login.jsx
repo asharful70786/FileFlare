@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // ✅ import useNavigate
 import "./Auth.css";
 import LogWithGoogle from "./LogWithGoogle";
+import LogWithGithub from "./loginWithGithub";
 
 const Login = () => {
   const BASE_URL = "http://localhost:4000";
@@ -95,6 +96,10 @@ const Login = () => {
       <div className="social-login">
         <button className="social-button">
           <LogWithGoogle />
+        </button>
+        {/*loginWith github  */}
+        <button className="social-button">
+          <LogWithGithub />
         </button>
       </div>
     </div>

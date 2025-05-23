@@ -139,3 +139,28 @@ export const logoutAll = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  
+
+  try {
+    const allUsers = await User.find().select("-password -__v").lean();
+    const allSession = await Session.find().lean();
+    //when we fetch in .lean() it retrun as object /. otherwise in normal it return as array
+    const allSessionUserIds = allSession.map(({ userId }) => userId.toString());
+    const transformedUsers = allUsers.map(({ _id, name, email }) => ({
+      name,
+      email,
+      id: _id,
+      isLoggedIn: allSessionUserIds.includes(_id.toString()),
+    }
+    ));
+    return res.status(200).json(transformedUsers);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error while fetching users",
+    });
+  }
+};

@@ -118,5 +118,119 @@ export const continueWithGoogle = async (req, res) => {
     return res.status(500).json({ error: "Something went wrong!" });
   }
 };
+export const continueWithGithub = async (req, res) => {
+  const code = req.query.code;
+
+  try {
+    // Step 1: Exchange code for access token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      body: new URLSearchParams({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Failed to get access token' });
+    }
+
+    // Step 2: Fetch GitHub user profile
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `token ${accessToken}` },
+    });
+    const userData = await userResponse.json();
+
+    // Step 3: Get verified primary email
+    const emailRes = await fetch('https://api.github.com/user/emails', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github+json',
+      },
+    });
+
+    const emails = await emailRes.json();
+    const primaryEmail = emails.find(email => email.primary && email.verified)?.email;
+
+    if (!primaryEmail) {
+      return res.status(400).json({ error: 'No verified email found on GitHub account' });
+    }
+
+    let { avatar_url, name } = userData;
+    if (!name) {
+      name = primaryEmail.split('@')[0];
+    }
+    console.log(avatar_url, name)
+    const email = primaryEmail;
+
+    // Step 4: Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // User exists, create new session
+      const session = await Session.create({ userId: user._id });
+      const userSessions = await Session.find({ userId: user._id });
+      if (userSessions.length >= 3) {
+        await Session.findByIdAndDelete(userSessions[0]._id);
+      }
+
+      res.cookie("sid", session._id, {
+        httpOnly: true,
+        signed: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      });
+
+      return res.status(200).json({ message: "Logged In with GitHub" });
+    }
+
+    // Step 5: Register new user
+    const sessionDb = await mongoose.startSession();
+    sessionDb.startTransaction();
+
+    const newUserId = new Types.ObjectId();
+    const rootDirId = new Types.ObjectId();
+
+    await Directory.create(
+      [{
+        _id: rootDirId,
+        name: `root-${email}`,
+        parentDirId: null,
+        userId: newUserId,
+      }],
+      { session: sessionDb }
+    );
+
+    await User.create(
+      [{
+        _id: newUserId,
+        name,
+        email,
+        picture: avatar_url,
+        rootDirId,
+      }],
+      { session: sessionDb }
+    );
+
+    await sessionDb.commitTransaction();
+    sessionDb.endSession();
+
+    const newSession = await Session.create({ userId: newUserId });
+    res.cookie("sid", newSession._id, {
+      httpOnly: true,
+      signed: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return res.status(201).json({ message: "User registered with GitHub" });
+
+  } catch (error) {
+    console.error("Error in continueWithGithub:", error);
+    return res.status(500).json({ error: "GitHub login failed" });
+  }
+};
 
 export { sendOtpRequest, verifyOtpRequest };

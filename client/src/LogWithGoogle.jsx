@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 function LogWithGoogle() {
   const BASE_URL = "http://localhost:4000";
-   const navigate = useNavigate(); // add this
+   const navigate = useNavigate();
 
   return (
     <>

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+
+export const BASE_URL = "http://localhost:4000";
 import {
   FaFolderPlus,
   FaUpload,
@@ -18,7 +20,7 @@ function DirectoryHeader({
   disabled = false,
 }) {
   // Use a constant for the API base URL
-  const BASE_URL = "http://localhost:4000";
+
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
