@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { connectDB } from "./db.js";
 
 await connectDB();
-const db =  mongoose.connection.db;
- let client = mongoose.connection.getClient();
+const db = mongoose.connection.db;
+let client = mongoose.connection.getClient();
 
 try {
 
@@ -15,7 +15,7 @@ try {
     validator: {
       $jsonSchema: {
         bsonType: "object",
-        required: ["_id", "name", "email", "rootDirId" , "picture" ],
+        required: ["_id", "name", "email", "rootDirId", "picture",],
         properties: {
           _id: {
             bsonType: "objectId",
@@ -29,20 +29,28 @@ try {
           email: {
             bsonType: "string",
             description: "please enter a valid email",
-            pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$",
+            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+
           },
           password: {
             bsonType: "string",
             minLength: 4,
           },
-          picture : {
+          role: {
+            bsonType: "string",
+            enum: ["user", "admin", "manager"],
+          },
+          picture: {
             bsonType: "string",
           },
           rootDirId: {
             bsonType: "objectId",
           },
+          "__v": {
+            "bsonType": "int"
+          }
         },
-        additionalProperties: false,
+        additionalProperties: true,
       },
     },
     validationAction: "error",
@@ -64,6 +72,9 @@ try {
           },
           userId: {
             bsonType: "objectId",
+          },
+          _v: {
+            bsonType: "int",
           },
           parentDirId: {
             bsonType: ["objectId", "null"],

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // ✅ import useNavigate
+import { Link, useNavigate } from "react-router-dom"; 
 import "./Auth.css";
 import LogWithGoogle from "./LogWithGoogle";
 import LogWithGithub from "./loginWithGithub";
@@ -92,14 +92,13 @@ const Login = () => {
       {/* Divider */}
       <div className="divider"><span>or</span></div>
 
-      {/* Social Login */}
       <div className="social-login">
         <button className="social-button">
           <LogWithGoogle />
         </button>
-        {/*loginWith github  */}
+      
         <button className="social-button">
-          <LogWithGithub />
+          {/* <LogWithGithub /> */}
         </button>
       </div>
     </div>

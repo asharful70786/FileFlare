@@ -17,7 +17,12 @@ router.post("/user/register", register);
 router.post("/user/login", login);
 
 router.get("/user/", checkAuth, getCurrentUser);
-router.get("/users", checkAuth, getAllUsers);
+router.get("/users", checkAuth, (req, res, next) => {
+  if (req.user.role == "user") {
+    return res.status(403).json({ error: "You are not Authorizes to login the  page " });
+  }
+  next();
+}, getAllUsers);
 
 router.post("/logout", logout);
 router.post("/logout-all", checkAuth, logoutAll);

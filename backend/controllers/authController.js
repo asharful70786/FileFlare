@@ -114,9 +114,22 @@ export const continueWithGoogle = async (req, res) => {
     return res.status(201).json({ message: "User registered successfully" });
 
   } catch (error) {
-    console.error("Error in continueWithGoogle:", error);
-    return res.status(500).json({ error: "Something went wrong!" });
+  console.error("Error in continueWithGoogle:", error);
+
+  // Handle MongoDB JSON Schema validation error
+  if (error.name === "MongoServerError" && error.code === 121) {
+    const validationErrors = error.errInfo?.details?.schemaRulesNotSatisfied || [];
+
+    // Log each detailed validation issue
+    console.error("Validation details:", JSON.stringify(validationErrors, null, 2));
+
+    return res.status(400).json({
+      error: "User validation failed",
+      validationIssues: validationErrors
+    });
   }
+}
+
 };
 export const continueWithGithub = async (req, res) => {
   const code = req.query.code;
