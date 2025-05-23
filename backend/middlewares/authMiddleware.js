@@ -26,3 +26,9 @@ export default async function checkAuth(req, res, next) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+export const roleBaseAccessMiddleware = (req, res, next) => {
+  if (req.user.role == "user") {
+    return res.status(403).json({ error: "You are not Authorizes to login the  page " });
+  }
+  next();
+};

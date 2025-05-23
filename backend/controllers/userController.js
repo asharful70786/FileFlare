@@ -4,6 +4,7 @@ import Directory from "../models/directoryModel.js";
 import mongoose, { Types } from "mongoose";
 import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
+import File from "../models/fileModel.js";
 
 
 export const register = async (req, res, next) => {
@@ -92,7 +93,8 @@ export const getCurrentUser = (req, res) => {
   res.status(200).json({
     name: req.user.name,
     email: req.user.email,
-    picture: req.user.picture
+    picture: req.user.picture,
+    role: req.user.role
   });
 };
 
@@ -141,8 +143,9 @@ export const logoutAll = async (req, res) => {
 };
 
 export const getAllUsers = async (req, res) => {
-  
-
+  if (req.user.role == "user") {
+    return res.status(403).json({ error: "You are not Authorizes to login the  page " });
+  }
   try {
     const allUsers = await User.find().select("-password -__v").lean();
     const allSession = await Session.find().lean();
@@ -164,3 +167,50 @@ export const getAllUsers = async (req, res) => {
     });
   }
 };
+
+
+export const roleBaseActionPerform = async (req, res, next) => {
+  try {
+    const { _id } = req.body;
+
+    const session = await Session.find({ userId: _id });
+    session.forEach(async (session) => {
+      await Session.findByIdAndDelete(session._id);
+    })
+    return res.json("user logout Successfully by admin");
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+}
+
+export const deleteUserByAdmin = async (req, res) => {
+
+  try {
+    const { _id } = req.body;
+    const user = await User.findById(_id);
+    if(user === req.user){
+      return res.status(403).json({ error: "you can't delete yourself" });
+    }
+    if (user.role == "admin") {
+      return res.status(403).json({ error: "you are admin you cant delete yourself" });
+    }
+    //directly delete user
+    await Directory.deleteMany({ userId: _id });
+    await File.deleteMany({ userId: _id });
+    await Session.deleteMany({ userId: _id });
+    await User.findByIdAndDelete(_id);
+
+    console.log("user", user)
+
+
+
+
+
+
+    return res.json("user deleted Successfully by admin");
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
