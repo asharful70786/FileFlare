@@ -3,7 +3,7 @@ import  dotenv from "dotenv";
 dotenv.config();
 
 export  async function connectDB() {
-  await mongoose.connect("mongodb+srv://ashrafulmomin2:1qt7HERDz2KdqK29@cluster0.ye51iwd.mongodb.net/storageApp").then(() => {
+  await mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log("Connected to MongoDB of atlas storageApp");
   }).catch((err) => {
     console.log("Error connecting to MongoDB", err);
